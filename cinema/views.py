@@ -91,7 +91,7 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
         if self.action == "list":
             queryset = (
                 queryset
-                .prefetch_related("movie", "cinema_hall")
+                .select_related("movie", "cinema_hall")
                 .annotate(
                     tickets_available=F(
                         "cinema_hall__rows") * F(

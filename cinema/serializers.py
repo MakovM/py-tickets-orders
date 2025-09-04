@@ -82,7 +82,7 @@ class MovieSessionListSerializer(MovieSessionSerializer):
         )
 
 
-class TakenPlaceSerializer(MovieSessionSerializer):
+class TakenPlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ("row", "seat")
