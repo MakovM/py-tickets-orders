@@ -19,21 +19,25 @@ from cinema.serializers import (
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all().order_by("id")
     serializer_class = GenreSerializer
+    pagination_class = None
 
 
 class ActorViewSet(viewsets.ModelViewSet):
     queryset = Actor.objects.all().order_by("id")
     serializer_class = ActorSerializer
+    pagination_class = None
 
 
 class CinemaHallViewSet(viewsets.ModelViewSet):
     queryset = CinemaHall.objects.all().order_by("id")
     serializer_class = CinemaHallSerializer
+    pagination_class = None
 
 
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all().order_by("id")
     serializer_class = MovieSerializer
+    pagination_class = None
 
     @staticmethod
     def _params_to_ints(query_string):
@@ -49,8 +53,8 @@ class MovieViewSet(viewsets.ModelViewSet):
 
         genres = self.request.query_params.get("genres")
         if genres:
-            genres = self._params_to_ints(genres)
-            queryset = queryset.filter(genres__id__in=genres)
+            genres_ids = self._params_to_ints(genres)
+            queryset = queryset.filter(genres__id__in=genres_ids)
 
         title = self.request.query_params.get("title")
         if title:
@@ -71,6 +75,7 @@ class MovieViewSet(viewsets.ModelViewSet):
 class MovieSessionViewSet(viewsets.ModelViewSet):
     queryset = MovieSession.objects.all().order_by("id")
     serializer_class = MovieSessionSerializer
+    pagination_class = None
 
     def get_queryset(self):
         queryset = self.queryset
@@ -96,7 +101,7 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
             )
 
         if self.action == "retrieve":
-            return queryset.prefetch_related("movie", "cinema_hall")
+            queryset = queryset.prefetch_related("movie", "cinema_hall")
         return queryset
 
     def get_serializer_class(self):
@@ -111,7 +116,6 @@ class MovieSessionViewSet(viewsets.ModelViewSet):
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
@@ -126,8 +130,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer.save(user=self.request.user)
 
     def get_serializer_class(self):
-        serializer = self.serializer_class
-
         if self.action == "list":
-            serializer = OrderListSerializer
-        return serializer
+            return OrderListSerializer
+        return OrderSerializer
